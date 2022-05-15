@@ -19,6 +19,16 @@ type player struct {
 }
 
 var p player
+var op player
+
+// colliding checks whether a player is colliding with another player
+func (p player) colliding(op player) bool {
+	distX := (p.x + p.radius) - (op.x + op.radius)
+	distY := (p.y + p.radius) - (op.y + op.radius)
+	dist := math.Sqrt(distX*distX + distY*distY)
+
+	return dist < p.radius+op.radius
+}
 
 // Update the game state
 func (g *Game) Update() error {
@@ -34,6 +44,11 @@ func (g *Game) Update() error {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		p.x++
+	}
+
+	// Collision detection
+	if p.colliding(op) {
+		log.Println("COLLIDING")
 	}
 
 	return nil
@@ -60,6 +75,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// Add the Translate effect to the option struct
 	opts.GeoM.Translate(p.x, p.y)
 	drawCircle(screen, p)
+	drawCircle(screen, op)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -71,6 +87,7 @@ func main() {
 	ebiten.SetWindowTitle("KRAK ORRRRRRK!")
 	// Create the player
 	p = player{64, 48, 16, ebiten.NewImage(32, 32), color.RGBA{0, 0xff, 0, 0xff}}
+	op = player{132, 132, 16, ebiten.NewImage(32, 32), color.RGBA{0, 0, 0xff, 0xff}}
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
 	}
