@@ -30,6 +30,20 @@ func (p player) colliding(op player) bool {
 	return dist < p.radius+op.radius
 }
 
+// resolveCollision updates a player's x and y values
+func (p *player) resolveCollision(op player) {
+	distX := (p.x + p.radius) - (op.x + op.radius)
+	distY := (p.y + p.radius) - (op.y + op.radius)
+	dist := math.Sqrt(distX*distX + distY*distY)
+	radii := p.radius + op.radius
+
+	opX := distX / dist
+	opY := distY / dist
+
+	p.x = op.x + (radii+1)*opX
+	p.y = op.y + (radii+1)*opY
+}
+
 // Update the game state
 func (g *Game) Update() error {
 	// Keyboard input for player movement
@@ -48,6 +62,7 @@ func (g *Game) Update() error {
 
 	// Collision detection
 	if p.colliding(op) {
+		p.resolveCollision(op)
 		log.Println("COLLIDING")
 	}
 
